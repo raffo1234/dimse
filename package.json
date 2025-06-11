@@ -4,11 +4,10 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "cd node_modules/dcmjs-dimse && npm install && npm run build"
+    "start": "node server.js"
   },
   "dependencies": {
-    "dcmjs-dimse": "github:PantelisGeorgiadis/dcmjs-dimse",
+    "dcmjs-dimse": "^1.0.7",
     "express": "^4.18.2",
     "cors": "^2.8.5"
   }
