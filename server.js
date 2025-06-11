@@ -1,38 +1,57 @@
 const express = require("express");
 const cors = require("cors");
-const dimse = require("dicom-dimse-native");
+const { echoScu } = require("dicom-dimse-native");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
-
-app.post("/dicom/ping", express.json(), async (req, res) => {
-  const { ip, port, aet_server, aet_client = "MY_CLIENT_AE" } = req.body;
+app.post("/dicom/ping", (req, res) => {
+  const { ip, port, aet_server, aet_client = "MY_AE" } = req.body;
 
   if (!ip || !port || !aet_server) {
     return res
       .status(400)
-      .json({ ok: false, error: "Missing required fields" });
+      .json({ ok: false, error: "Missing ip, port, or aet_server" });
   }
 
-  try {
-    await dimse.CEchoSCU({
-      source: { aet: aet_client },
-      target: { host: ip, port, aet: aet_server },
-    });
+  const options = {
+    source: {
+      aet: aet_client,
+      ip: "0.0.0.0",
+      port: 9999, // local ephemeral port for initiating request
+    },
+    target: {
+      aet: aet_server,
+      ip,
+      port: parseInt(port),
+    },
+    verbose: true,
+  };
 
-    res.json({ ok: true, status: true });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
-  }
+  echoScu(options, (result) => {
+    try {
+      const response = JSON.parse(result);
+      if (response.success) {
+        res.json({ ok: true, status: "C-ECHO Success", response });
+      } else {
+        res.status(500).json({
+          ok: false,
+          error: response.error || "C-ECHO failed",
+          response,
+        });
+      }
+    } catch (err) {
+      res.status(500).json({
+        ok: false,
+        error: "Invalid JSON from echoScu",
+        details: result,
+      });
+    }
+  });
 });
 
-app.get("/", (_, res) => {
-  res.send("dicom-dimse-native server running.");
-});
-
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ DICOM server listening on http://localhost:${PORT}`);
 });

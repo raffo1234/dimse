@@ -1,22 +1,14 @@
 FROM node:20
 
-# Install dependencies needed for dicom-dimse-native
-RUN apt-get update && \
-    apt-get install -y python3 g++ make libwrap0 && \
-    apt-get clean
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    make g++ cmake libwrap0 libdcmtk-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
-
-# Copy package files and install
-COPY package.json ./
-RUN npm install
-
-# Copy rest of app
 COPY . .
 
-# Expose port
-EXPOSE 3000
+RUN npm install
 
-# Start app
-CMD ["npm", "start"]
+EXPOSE 3000
+CMD ["node", "server.js"]
