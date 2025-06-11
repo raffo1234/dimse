@@ -1,14 +1,14 @@
 {
-  "name": "dicom-dimse-server",
+  "name": "dicom-dimse-native-server",
   "version": "1.0.0",
-  "type": "module",
+  "description": "DIMSE C-ECHO using dicom-dimse-native",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "dcmjs-dimse": "^1.0.7",
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "dicom-dimse-native": "^1.2.5"
   }
 }
