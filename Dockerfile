@@ -1,22 +1,22 @@
 FROM node:20
 
-# Install build tools for native modules
+# Install dependencies needed for dicom-dimse-native
 RUN apt-get update && \
-    apt-get install -y python3 g++ make && \
+    apt-get install -y python3 g++ make libwrap0 && \
     apt-get clean
 
-# Create app directory
+# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and install
 COPY package.json ./
 RUN npm install
 
-# Copy rest of the source
+# Copy rest of app
 COPY . .
 
 # Expose port
 EXPOSE 3000
 
-# Run the app
+# Start app
 CMD ["npm", "start"]
